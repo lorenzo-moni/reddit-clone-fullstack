@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": "./src",
+    "paths": {
+      "@reddit/frontend/components/*": ["components/*"],
+      "@reddit/frontend/pages/*": ["pages/*"],
+      "@reddit/frontend/utils/*": ["utils/*"],
+      "@reddit/frontend/public/*": ["public/*"],
+      "@reddit/frontend/styles/*": ["styles/*"],
+      "@reddit/frontend/mutations/*": ["graphql/mutations/*"],
+      "@reddit/frontend/queries/*": ["graphql/queries/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules"]
+}
