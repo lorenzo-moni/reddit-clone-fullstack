@@ -5,12 +5,16 @@ import {
   Button,
   Typography,
   FormControl,
-  Box
+  Box,
+  Container
 } from "@material-ui/core";
 
 import { useLoginMutation } from "generated/graphql";
 import { toErrorMap } from "@reddit/frontend/utils/toErrorMap";
 import { useRouter } from "next/router";
+import { createUrqlClient } from "@reddit/frontend/utils/createUrqlClient";
+import { withUrqlClient } from "next-urql";
+import Navbar from "@reddit/frontend/components/Navbar";
 
 const useStyles = makeStyles(theme => ({
   formField: {
@@ -41,52 +45,57 @@ const Login: React.FC<{}> = ({}) => {
   };
 
   return (
-    <Box maxWidth="40%" mx="auto">
-      <form
-        className={style.form}
-        noValidate
-        autoComplete="off"
-        onSubmit={handleSubmit}
-      >
-        <FormControl className={style.formField} fullWidth>
-          <TextField
-            value={username}
-            onChange={e => {
-              setUsername(e.target.value);
-            }}
-            label="Username"
-            variant="outlined"
-            color="secondary"
-            required
-            error={!!errors?.username}
-          />
-          <Typography variant="caption" color="error">
-            {errors?.username}
-          </Typography>
-        </FormControl>
+    <>
+      <Navbar />
+      <Container>
+        <Box maxWidth="40%" mx="auto">
+          <form
+            className={style.form}
+            noValidate
+            autoComplete="off"
+            onSubmit={handleSubmit}
+          >
+            <FormControl className={style.formField} fullWidth>
+              <TextField
+                value={username}
+                onChange={e => {
+                  setUsername(e.target.value);
+                }}
+                label="Username"
+                variant="outlined"
+                color="secondary"
+                required
+                error={!!errors?.username}
+              />
+              <Typography variant="caption" color="error">
+                {errors?.username}
+              </Typography>
+            </FormControl>
 
-        <FormControl className={style.formField} fullWidth>
-          <TextField
-            value={password}
-            onChange={e => {
-              setPassword(e.target.value);
-            }}
-            label="Password"
-            type="password"
-            variant="outlined"
-            color="secondary"
-            required
-            error={!!errors?.password}
-          />
-          <Typography variant="caption" color="error">
-            {errors?.password}
-          </Typography>
-        </FormControl>
-        <Button variant="contained" color="primary" type="submit" fullWidth>
-          Login
-        </Button>
-      </form>
-    </Box>
+            <FormControl className={style.formField} fullWidth>
+              <TextField
+                value={password}
+                onChange={e => {
+                  setPassword(e.target.value);
+                }}
+                label="Password"
+                type="password"
+                variant="outlined"
+                color="secondary"
+                required
+                error={!!errors?.password}
+              />
+              <Typography variant="caption" color="error">
+                {errors?.password}
+              </Typography>
+            </FormControl>
+            <Button variant="contained" color="primary" type="submit" fullWidth>
+              Login
+            </Button>
+          </form>
+        </Box>
+      </Container>
+    </>
   );
 };
-export default Login;
+export default withUrqlClient(createUrqlClient)(Login);

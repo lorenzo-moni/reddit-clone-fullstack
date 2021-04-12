@@ -2,36 +2,33 @@ import {
   CurrentUserDocument,
   CurrentUserQuery,
   LoginMutation,
+  LogoutMutation,
   RegisterMutation
 } from "generated/graphql";
-import {
-  cacheExchange,
-  Cache,
-  QueryInput,
-  query
-} from "@urql/exchange-graphcache";
+import { cacheExchange } from "@urql/exchange-graphcache";
+import { dedupExchange, fetchExchange } from "urql";
+import { betterUpdateQuery } from "./betterUpdateQuery";
 
-import { createClient, dedupExchange, fetchExchange } from "urql";
-
-function betterUpdateQuery<Result, Query>(
-  cache: Cache,
-  qi: QueryInput,
-  result: any,
-  fn: (r: Result, q: Query) => Query
-) {
-  return cache.updateQuery(qi, data => fn(result, data as any) as any);
-}
-
-const client = createClient({
+export const createUrqlClient = (ssrExchange: any) => ({
   url: "http://localhost:4000/graphql",
   fetchOptions: {
-    credentials: "include"
+    credentials: "include" as const
   },
   exchanges: [
     dedupExchange,
     cacheExchange({
       updates: {
         Mutation: {
+          logout: (_result, args, cache, info) => {
+            // me query will return null
+            betterUpdateQuery<LogoutMutation, CurrentUserQuery>(
+              cache,
+              { query: CurrentUserDocument },
+              _result,
+              () => ({ me: null })
+            );
+          },
+
           login: (_result, args, cache, info) => {
             betterUpdateQuery<LoginMutation, CurrentUserQuery>(
               cache,
@@ -71,8 +68,7 @@ const client = createClient({
         }
       }
     }),
+    ssrExchange,
     fetchExchange
   ]
 });
-
-export default client;

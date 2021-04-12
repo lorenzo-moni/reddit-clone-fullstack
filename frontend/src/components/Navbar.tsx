@@ -12,7 +12,7 @@ import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import Link from "next/link";
-import { useCurrentUserQuery } from "generated/graphql";
+import { useCurrentUserQuery, useLogoutMutation } from "generated/graphql";
 import Avatar from "@material-ui/core/Avatar";
 import Badge from "@material-ui/core/Badge";
 
@@ -65,14 +65,15 @@ const StyledBadge = withStyles((theme: Theme) =>
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
   const style = useStyles();
-  const [{ data, fetching }] = useCurrentUserQuery();
+  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
+  const [{ data, fetching: userFetching }] = useCurrentUserQuery();
   let body = null;
 
   const handleLogout = () => {
-    console.log("asd");
+    logout();
   };
 
-  if (fetching) {
+  if (userFetching) {
   } else if (!data?.me) {
     body = (
       <>

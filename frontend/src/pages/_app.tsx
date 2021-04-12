@@ -3,9 +3,6 @@ import Head from "next/head";
 import { ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import theme from "@reddit/frontend/styles/theme";
-import { Provider as UrqlProvider } from "urql";
-import client from "../graphql/client";
-
 import Layout from "@reddit/frontend/components/Layout";
 
 export default function MyApp({ Component, pageProps }: any) {
@@ -18,7 +15,7 @@ export default function MyApp({ Component, pageProps }: any) {
   }, []);
 
   return (
-    <UrqlProvider value={client}>
+    <>
       <Head>
         <title>Reddit</title>
         <meta
@@ -28,10 +25,9 @@ export default function MyApp({ Component, pageProps }: any) {
       </Head>
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
+
+        <Component {...pageProps} />
       </ThemeProvider>
-    </UrqlProvider>
+    </>
   );
 }
