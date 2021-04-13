@@ -15,6 +15,7 @@ import Link from "next/link";
 import { useCurrentUserQuery, useLogoutMutation } from "generated/graphql";
 import Avatar from "@material-ui/core/Avatar";
 import Badge from "@material-ui/core/Badge";
+import { isServer } from "@reddit/frontend/utils/isServer";
 
 interface NavbarProps {}
 
@@ -27,7 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
       marginRight: theme.spacing(2)
     },
     title: {
-      flexGrow: 1
+      flexGrow: 1,
+      cursor: "pointer"
     }
   })
 );
@@ -66,7 +68,9 @@ const StyledBadge = withStyles((theme: Theme) =>
 const Navbar: React.FC<NavbarProps> = ({}) => {
   const style = useStyles();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching: userFetching }] = useCurrentUserQuery();
+  const [{ data, fetching: userFetching }] = useCurrentUserQuery({
+    pause: isServer()
+  });
   let body = null;
 
   const handleLogout = () => {
@@ -74,6 +78,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   };
 
   if (userFetching) {
+    body = <div>Loading</div>;
   } else if (!data?.me) {
     body = (
       <>
@@ -104,24 +109,24 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   }
 
   return (
-    <div className={style.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton
-            edge="start"
-            className={style.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
+    <AppBar position="static">
+      <Toolbar>
+        <IconButton
+          edge="start"
+          className={style.menuButton}
+          color="inherit"
+          aria-label="menu"
+        >
+          <MenuIcon />
+        </IconButton>
+        <Link href="/">
           <Typography variant="h6" className={style.title}>
             Reddit Clone
           </Typography>
-          {body}
-        </Toolbar>
-      </AppBar>
-    </div>
+        </Link>
+        {body}
+      </Toolbar>
+    </AppBar>
   );
 };
 export default Navbar;

@@ -1,28 +1,39 @@
 import "reflect-metadata";
-import { MikroORM } from "@mikro-orm/core";
-import microConfig from "./mikro-orm.config";
 import express, { Request, Response, Application } from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { PostResolver } from "@reddit/backend/resolvers/post";
 import { UserResolver } from "@reddit/backend/resolvers/user";
-import redis from "redis";
+import Redis from "ioredis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { COOKIE_NAME, __prod__ } from "./constants";
 import cors from "cors";
+import sendEmail from "@reddit/backend/utils/sendEmail";
+import { User } from "./entities/User";
+import { Post } from "./entities/Post";
+
 require("dotenv").config();
 
+import { createConnection } from "typeorm";
+
 const main = async () => {
-  const orm = await MikroORM.init(microConfig);
-  await orm.getMigrator().up();
+  const conn = await createConnection({
+    type: "postgres",
+    database: "redditclone",
+    username: "postgres",
+    password: "MoniLorenzo23403",
+    logging: true,
+    synchronize: true,
+    entities: [User, Post]
+  });
 
   const PORT = process.env.PORT || 4000;
 
   const app: Application = express();
 
   const RedisStore = connectRedis(session);
-  const redisClient = redis.createClient();
+  const redis = new Redis();
 
   app.use(
     cors({
@@ -35,7 +46,7 @@ const main = async () => {
     session({
       name: COOKIE_NAME,
       store: new RedisStore({
-        client: redisClient,
+        client: redis,
         disableTouch: true
       }),
       secret: process.env.SESSION_SECRET
@@ -57,7 +68,7 @@ const main = async () => {
       resolvers: [UserResolver, PostResolver],
       validate: false
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res })
+    context: ({ req, res }) => ({ req, res, redis })
   });
 
   apolloServer.applyMiddleware({

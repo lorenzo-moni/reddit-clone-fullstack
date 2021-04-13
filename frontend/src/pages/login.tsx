@@ -15,27 +15,21 @@ import { useRouter } from "next/router";
 import { createUrqlClient } from "@reddit/frontend/utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import Navbar from "@reddit/frontend/components/Navbar";
-
-const useStyles = makeStyles(theme => ({
-  formField: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2)
-  },
-  form: { width: "100%" }
-}));
+import Link from "next/link";
+import useFormStyles from "@reddit/frontend/styles/formStyles";
 
 const Login: React.FC<{}> = ({}) => {
   const router = useRouter();
   const [, login] = useLoginMutation();
-  const style = useStyles();
-  const [username, setUsername] = useState("");
+  const formStyle = useFormStyles();
+  const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string> | null>();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setErrors(null);
-    const response = await login({ options: { username, password } });
+    const response = await login({ usernameOrEmail, password });
 
     if (response.data?.login.errors) {
       setErrors(toErrorMap(response.data.login.errors));
@@ -50,29 +44,29 @@ const Login: React.FC<{}> = ({}) => {
       <Container>
         <Box maxWidth="40%" mx="auto">
           <form
-            className={style.form}
+            className={formStyle.form}
             noValidate
             autoComplete="off"
             onSubmit={handleSubmit}
           >
-            <FormControl className={style.formField} fullWidth>
+            <FormControl className={formStyle.formField} fullWidth>
               <TextField
-                value={username}
+                value={usernameOrEmail}
                 onChange={e => {
-                  setUsername(e.target.value);
+                  setUsernameOrEmail(e.target.value);
                 }}
-                label="Username"
+                label="Username or Email"
                 variant="outlined"
                 color="secondary"
                 required
-                error={!!errors?.username}
+                error={!!errors?.usernameOrEmail}
               />
               <Typography variant="caption" color="error">
-                {errors?.username}
+                {errors?.usernameOrEmail}
               </Typography>
             </FormControl>
 
-            <FormControl className={style.formField} fullWidth>
+            <FormControl className={formStyle.formField} fullWidth>
               <TextField
                 value={password}
                 onChange={e => {
@@ -92,6 +86,9 @@ const Login: React.FC<{}> = ({}) => {
             <Button variant="contained" color="primary" type="submit" fullWidth>
               Login
             </Button>
+            <Box style={{ marginTop: 10 }}>
+              <Link href="/forgot-password">Forgot your Password?</Link>
+            </Box>
           </form>
         </Box>
       </Container>

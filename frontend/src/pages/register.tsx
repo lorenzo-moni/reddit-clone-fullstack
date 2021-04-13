@@ -14,29 +14,23 @@ import { useRouter } from "next/router";
 import { createUrqlClient } from "@reddit/frontend/utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import Navbar from "@reddit/frontend/components/Navbar";
-
-const useStyles = makeStyles(theme => ({
-  formField: {
-    marginTop: theme.spacing(2),
-    marginBottom: theme.spacing(2)
-  },
-  form: { width: "100%" }
-}));
+import useFormStyles from "@reddit/frontend/styles/formStyles";
 
 interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
   const router = useRouter();
   const [, register] = useRegisterMutation();
-  const style = useStyles();
+  const formStyle = useFormStyles();
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<Record<string, string> | null>();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setErrors(null);
-    const response = await register({ username, password });
+    const response = await register({ options: { username, password, email } });
 
     if (response.data?.register.errors) {
       setErrors(toErrorMap(response.data.register.errors));
@@ -51,12 +45,28 @@ const Register: React.FC<registerProps> = ({}) => {
       <Container>
         <Box maxWidth="40%" mx="auto">
           <form
-            className={style.form}
+            className={formStyle.form}
             noValidate
             autoComplete="off"
             onSubmit={handleSubmit}
           >
-            <FormControl className={style.formField} fullWidth>
+            <FormControl className={formStyle.formField} fullWidth>
+              <TextField
+                value={email}
+                onChange={e => {
+                  setEmail(e.target.value);
+                }}
+                label="Email"
+                variant="outlined"
+                color="secondary"
+                required
+                error={!!errors?.email}
+              />
+              <Typography variant="caption" color="error">
+                {errors?.email}
+              </Typography>
+            </FormControl>
+            <FormControl className={formStyle.formField} fullWidth>
               <TextField
                 value={username}
                 onChange={e => {
@@ -73,7 +83,7 @@ const Register: React.FC<registerProps> = ({}) => {
               </Typography>
             </FormControl>
 
-            <FormControl className={style.formField} fullWidth>
+            <FormControl className={formStyle.formField} fullWidth>
               <TextField
                 value={password}
                 onChange={e => {
